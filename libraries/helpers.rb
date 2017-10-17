@@ -8,7 +8,7 @@ module ChefComplianceCookbook
     end
 
     def api_fqdn_resolves?
-      ChefIngredientCookbook::Helpers.fqdn_resolves?(
+      ChefComplianceCookbook::Helpers.fqdn_resolves?(
         node['chef-compliance']['api_fqdn']
       )
     end
@@ -18,6 +18,14 @@ module ChefComplianceCookbook
       fe.insert_line_if_no_match(/#{node['chef-compliance']['api_fqdn']}/,
         "127.0.0.1 #{node['chef-compliance']['api_fqdn']}")
       fe.write_file
+    end
+
+    def fqdn_resolves?(fqdn)
+      require 'resolv'
+      Resolv.getaddress(fqdn)
+      return true
+    rescue Resolv::ResolvError, Resolv::ResolvTimeout
+      false
     end
   end
 end
